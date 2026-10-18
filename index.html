@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Impurity</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #33ff33;
+            overflow: hidden;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            font-family: sans-serif;
+        }
+
+        #center-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222272;
+            color: #ffffff;
+            padding: 25px 40px;
+            border-radius: 8px;
+            text-align: center;
+            user-select: none;
+            z-index: 10; 
+        }
+
+        .title-ko {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px; 
+        }
+
+        .title-en {
+            font-size: 18px;
+            opacity: 0.9; 
+        }
+
+        #timer-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 15;
+        }
+
+        #target-pixel {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background-color: #222272; 
+            border: none;
+            padding: 0;
+            cursor: default; 
+            z-index: 1;
+            outline: none; 
+        }
+
+        #hint-ring {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px dashed rgba(0, 0, 0, 0); 
+            border-radius: 50%;
+            pointer-events: none; 
+            transform: translate(-15px, -15px); 
+            display: none;
+            z-index: 2;
+        }
+
+        #hint-ring.active {
+            display: block;
+            animation: blink 1s ease-in-out infinite; 
+        }
+
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="timer-display">진행 시간: 0.0초</div>
+
+     <div id="center-box">
+        <div class="title-ko">앰플 속으로 들어가 사라진 불순물을 찾으세요</div>
+    </div>
+
+    <button id="target-pixel" title="K" tabindex="-1"></button>
+
+    <div id="hint-ring"></div>
+
+    <script>
+        const target = document.getElementById('target-pixel');
+        const centerBox = document.getElementById('center-box');
+        const hintRing = document.getElementById('hint-ring');
+        const timerDisplay = document.getElementById('timer-display');
+        
+        let hintTimer = null; 
+        let hintHideTimer = null; 
+        
+        let startTime = null;
+        let stopWatchInterval = null;
+        let finalElapsedTime = "0.0";
+
+        function createOnePixelPNG(color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, 1, 1);
+            return canvas.toDataURL('image/png');
+        }
+
+        function startStopWatch() {
+            clearInterval(stopWatchInterval);
+            startTime = Date.now();
+
+            stopWatchInterval = setInterval(() => {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                finalElapsedTime = elapsedTime.toFixed(1);
+                timerDisplay.textContent = `진행 시간: ${finalElapsedTime}초`;
+            }, 100);
+        }
+
+        function spawnTarget() {
+            clearTimeout(hintTimer);
+            clearTimeout(hintHideTimer);
+            hintRing.classList.remove('active');
+
+            const boxRect = centerBox.getBoundingClientRect();
+            let randomX, randomY;
+            let insideBox = true;
+
+            const maxX = window.innerWidth - target.offsetWidth;
+            const maxY = window.innerHeight - target.offsetHeight;
+
+            while (insideBox) {
+                randomX = Math.floor(Math.random() * maxX);
+                randomY = Math.floor(Math.random() * maxY);
+
+                if (
+                    randomX >= boxRect.left && randomX <= boxRect.right &&
+                    randomY >= boxRect.top && randomY <= boxRect.bottom
+                ) {
+                    insideBox = true;
+                } else {
+                    insideBox = false;
+                }
+            }
+
+            target.style.left = randomX + 'px';
+            target.style.top = randomY + 'px';
+
+            hintRing.style.left = randomX + 'px';
+            hintRing.style.top = randomY + 'px';
+
+            hintTimer = setTimeout(showHint, 22000);
+            
+            startStopWatch();
+        }
+
+        function showHint() {
+            hintRing.classList.add('active'); 
+            
+            hintHideTimer = setTimeout(() => {
+                hintRing.classList.remove('active');
+            }, 2200);
+        }
+
+        window.onload = spawnTarget;
+
+        let resizeTimeout;
+        window.onresize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(spawnTarget, 200);
+        };
+
+        target.addEventListener('click', () => {
+            clearTimeout(hintTimer);
+            clearTimeout(hintHideTimer);
+            clearInterval(stopWatchInterval);
+
+            try {
+                const downloadURL = createOnePixelPNG('#222272');
+
+                const link = document.createElement('a');
+                link.href = downloadURL;
+                link.download = 'Kma.png'; 
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error("다운로드 실패:", error);
+                alert("다운로드 실패");
+            }
+
+            alert(`소요 시간: ${finalElapsedTime}초`);
+            
+            spawnTarget();
+        });
+    </script>
+</body>
+</html>
