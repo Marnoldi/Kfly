@@ -75,11 +75,11 @@
 <body>
 
      <div id="center-box">
-        <div class="title">11구 신생 기업 축소 특이점이 담긴 푸른 입자 군집에 벼룩파리 한마리가 다이빙했습니다,그 벼룩파리를 찾아내세요</div>
+        <div class="title">11구 신생 기업의 기술인 축소화 입자가 담긴 비커에 벼룩파리 한마리가 다이빙했습니다,그 벼룩파리를 검출하세요🪰</div>
     </div>
 
 <!-- { "abnormality_name": "Nu M.a“ "code": "O-06-22 TETH", "qliphoth counter": "4", "abnormality_form": "megapropodiphora-shaped navy neutrino swarm", "abnormality_ability": "neutrino body,infinite size reduction(not ingame)”, "favored_work": "insight", "damege_type": "white", "instinct_work:" "normal", "insight_work:" "good", "attachment_work:" "normal", "repression_work:" "low", "escape_trigger:" "none-insight work twice in a row", "breach:" "reduces passing employee SP to 40%", "relation:" "K-corp,the ring pointillism" , "ego_name:" "2nd Neutrino" "ego_suit_grade:" "TETH" "ego_suit_form:" "dark blue lab coat" "ego_suit_cost:" "25 PE-Box" "ego_suit_resistance_red:" "0.9" "ego_suit_resistance_white:" "0.5" "ego_suit_resistance_black:" "1.5" "ego_suit_resistance_pale:" "2.0" "ego_weapon_damage type:" "white" "ego_weapon_form:" "blue flashlight firing blue particles like fly” "ego_weapon_grade:" "TETH" "ego_weapon_damage:" "2~4" "ego_weapon_attack_speed:" "very fast" "ego_weapon_range:" "medium" "ego_weapon_cost:" "20 PE-Box" "ego_equipment_slot:" "eye" "ego_equipment_form:" "blue particle covers the eyes" "ego_equipment_effects:" "MP +5,work speed +2 “ego_equipment_drop_chance:" "7%" }이 가상의 로보토미 코퍼레이션 환상체 자세히 분석/평가🪰  -->
-  
+
     <button id="target-pixel" tabindex="-1"></button>
 
     <div id="hint-ring"></div>
@@ -91,15 +91,6 @@
         
         let hintTimer = null; 
         let hintHideTimer = null; 
-
-        function changeTitleRandomly() {
-            const titleElement = document.querySelector('.title');
-            if (Math.random() < 0.5) {
-                titleElement.textContent = "11구 신생 기업 축소 특이점이 담긴 푸른 입자 군집에 벼룩파리 한마리가 다이빙했습니다.그 벼룩파리를 찾아내세요🪰";
-            } else {
-                titleElement.textContent = "11구 신생 기업 축소 특이점이 담긴 푸른 입자 군집에 K-07 지부의 O-06-22가 다이빙했습니다.그 환상체를 찾아내세요";
-            }
-        }
 
         function spawnTarget() {
             clearTimeout(hintTimer);
@@ -144,10 +135,7 @@
             }, 2200);
         }
 
-        window.onload = () => {
-            changeTitleRandomly();
-            spawnTarget();
-        };
+        window.onload = spawnTarget;
 
         let resizeTimeout;
         window.onresize = () => {
@@ -156,8 +144,7 @@
         };
 
         const successMessages = [
-            "재검출"
-        ];
+            "사실 그 벼룩파리는 벼룩파리가 아닌 K-07 지부의 환상체 O-06-22 TETH였습니다",
 
         target.addEventListener('click', () => {
             clearTimeout(hintTimer);
@@ -188,7 +175,6 @@
             const randomIndex = Math.floor(Math.random() * successMessages.length);
             alert(successMessages[randomIndex]);
             
-            changeTitleRandomly();
             spawnTarget();
         });
     </script>
