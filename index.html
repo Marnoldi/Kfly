@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-Impurity</title>
+    <title>Kfly</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #33ff33;
+            background-color: #31FD2E;
             overflow: hidden;
             position: relative;
             width: 100vw;
@@ -21,8 +21,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #222272;
-            color: #ffffff;
+            background-color: #31FD2E;
+            color: #222272;
             padding: 25px 40px;
             border-radius: 8px;
             text-align: center;
@@ -38,28 +38,14 @@
 
         .title-en {
             font-size: 18px;
-            opacity: 0.9; 
-        }
-
-        #timer-display {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #ffffff;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            z-index: 15;
+            opacity: 0.9;
         }
 
         #target-pixel {
             position: absolute;
             width: 1px;
             height: 1px;
-            background-color: #222272; 
+            background-color: #31FD2E; 
             border: none;
             padding: 0;
             cursor: default; 
@@ -71,7 +57,7 @@
             position: absolute;
             width: 30px;
             height: 30px;
-            border: 2px dashed rgba(0, 0, 0, 0); 
+            border: 2px dashed rgba(0, 0, 14, 0.4); 
             border-radius: 50%;
             pointer-events: none; 
             transform: translate(-15px, -15px); 
@@ -93,13 +79,11 @@
 </head>
 <body>
 
-    <div id="timer-display">검출 완료 시각: 0.0초</div>
-
      <div id="center-box">
-        <div class="title-ko">앰플 속으로 파리 한마리가 마운틴-듀 했습니다,그 잔해를 찾으세요</div>
+        <div class="title-ko">정제 앰플 속으로 벼룩파리 한마리가 다이빙했습니다,그 잔해를 수거하세요</div>
     </div>
 
-    <button id="target-pixel" title="K" tabindex="-1"></button>
+    <button id="target-pixel" tabindex="-1"></button>
 
     <div id="hint-ring"></div>
 
@@ -107,35 +91,9 @@
         const target = document.getElementById('target-pixel');
         const centerBox = document.getElementById('center-box');
         const hintRing = document.getElementById('hint-ring');
-        const timerDisplay = document.getElementById('timer-display');
         
         let hintTimer = null; 
         let hintHideTimer = null; 
-        
-        let startTime = null;
-        let stopWatchInterval = null;
-        let finalElapsedTime = "0.0";
-
-        function createOnePixelPNG(color) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1;
-            canvas.height = 1;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = color;
-            ctx.fillRect(0, 0, 1, 1);
-            return canvas.toDataURL('image/png');
-        }
-
-        function startStopWatch() {
-            clearInterval(stopWatchInterval);
-            startTime = Date.now();
-
-            stopWatchInterval = setInterval(() => {
-                const elapsedTime = (Date.now() - startTime) / 1000;
-                finalElapsedTime = elapsedTime.toFixed(1);
-                timerDisplay.textContent = `진행 시간: ${finalElapsedTime}초`;
-            }, 100);
-        }
 
         function spawnTarget() {
             clearTimeout(hintTimer);
@@ -170,8 +128,6 @@
             hintRing.style.top = randomY + 'px';
 
             hintTimer = setTimeout(showHint, 22000);
-            
-            startStopWatch();
         }
 
         function showHint() {
@@ -190,26 +146,37 @@
             resizeTimeout = setTimeout(spawnTarget, 200);
         };
 
+        const successMessages = [
+            "재검출",
+
         target.addEventListener('click', () => {
             clearTimeout(hintTimer);
             clearTimeout(hintHideTimer);
-            clearInterval(stopWatchInterval);
 
             try {
-                const downloadURL = createOnePixelPNG('#222272');
+                const canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                const ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = '#222272';
+                ctx.fillRect(0, 0, 1, 1);
+
+                const downloadURL = canvas.toDataURL('image/png');
 
                 const link = document.createElement('a');
                 link.href = downloadURL;
-                link.download = 'Kma.png'; 
+                link.download = 'ㄳ.png';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             } catch (error) {
-                console.error("다운로드 실패:", error);
-                alert("다운로드 실패");
+                console.error("이미지 다운로드 실패:", error);
+                alert("failed");
             }
 
-            alert(`소요 시간: ${finalElapsedTime}초`);
+            const randomIndex = Math.floor(Math.random() * successMessages.length);
+            alert(successMessages[randomIndex]);
             
             spawnTarget();
         });
