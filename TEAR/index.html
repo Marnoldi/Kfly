@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>눈물 흘리는 것(구른다)</title>
+<title>눈물 흘리고 구르는 것</title>
 <style>
   html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#eee}
   #cv{display:block;width:100vw;height:100vh;background:#000}
@@ -75,11 +75,11 @@
 <div id="clear" class="ov hidden">
   <h1>탈출 완료</h1>
   <p>"…외곽으로 넘어왔다."
-눈물은 아직 마르지 않았지만, 당신은 K사의 손을 벗어났다.
+개안기의 감촉은 더이상 없다,당신은 K사의 손을 벗어났다.
 
 Wisdom earned at the cost of everything is the heaviest of all.</p>
   <p id="finalScore"></p>
-  <button class="btn" onclick="resetGame()">다시 도전</button>
+  <button class="btn" onclick="resetGame()">재도전</button>
 </div>
 
 <script>
@@ -132,12 +132,12 @@ function tryToggleCheat(){
   if(!G)G=newState();
   if(G.cheatLock){
     if(mode==="runner"||mode==="top")
-      toast("치트가 봉인되었다 — L사 K-07 지부 이후로는 사용할 수 없다",2.5);
+      toast("치트가 봉인되었다 — L사 K-07 지부 방문 이후로는 사용할 수 없다",2.5);
     return;
   }
   if(mode==="start"||mode==="runner"){
     G.cheat=!G.cheat;
-    if(G.cheat)toast("★ 치트 모드 ON — 안구가 장애물을 스스로 넘는다 ★",3);
+    if(G.cheat)toast("★ 치트 모드 ON — 눈물 흘리는 것이 장애물을 스스로 넘는다 ★",3);
     else toast("치트 모드 OFF",2);
   }
 }
@@ -172,7 +172,7 @@ $("start").addEventListener("touchend",()=>{
     dblCount++;lastTap=now;
     if(dblCount===7){
       if(!G)G=newState();
-      if(!G.cheat&&!G.cheatLock){G.cheat=true;toast("★ 치트 모드 ON — 안구가 장애물을 스스로 넘는다 ★",3);}
+      if(!G.cheat&&!G.cheatLock){G.cheat=true;toast("★ 치트 모드 ON — 눈물 흘리는 것이 장애물을 스스로 넘는다 ★",3);}
       dblCount=0;
     }else if(dblCount>=3&&dblCount<7){
       toast("… ("+(7-dblCount)+" 남음)",0.7);
@@ -676,9 +676,9 @@ function enterTop(){
   mode="top";G.tv.px=285;G.tv.py=350;
   if(G.cheat){
     G.cheat=false;G.cheatLock=true;
-    toast("치트 모드가 정지되었다 — K-07 지부부터는 안구 스스로를 돌봐야 한다",3.5);
+    toast("치트 모드가 정지되었다 — E.G.O를 얻고부터는 스스로를 돌봐야 한다",3.5);
   }
-  toast("── 하위 스테이지: L사 K-07 지부 ──\n체력 10 · WASD 이동 · Nu M.a 작업(2회·통찰 포함) 완료 시 탈출",4);
+  toast("── 하위 스테이지: L사 K-07 지부 ──\n체력 10 · WASD 이동 · 환상체 작업) 완료 시 탈출",4);
 }
 function updateTop(){
   if(!$("panel").classList.contains("hidden"))return;
@@ -707,11 +707,11 @@ function updateTop(){
   }
   if(!G.hasGift&&Math.hypot(pl.x-GIFT.x,pl.y-GIFT.y)<16){
     G.hasGift=true;G.maxhp=11;G.hp=G.maxhp;
-    toast("「2nd Neutrino」 E.G.O 기프트 획득!\n이 지부 내 최대 체력 +1",3);
+    toast("「2nd Neutrino」 E.G.O Gift 획득!\n이 지부 내 최대 체력 +1",3);
   }
   if(!G.tv.gotLens&&Math.hypot(pl.x-LENS.x,pl.y-LENS.y)<22){
     G.tv.gotLens=true;G.hasLens=true;
-    toast("깨진 확대경이 스스로 눈을 덮었다 — 사고확장(O-09-27) 자동 착용\n\"Wisdom earned at the cost of everything is the heaviest of all.\"\n(밖에서 한 번의 충돌을 막아줌 · 사용 후 20초 쿨타임)",4.5);
+    toast("깨진 확대경이 각막을 감싸줬다 — 사고확장(O-09-27) 자동 착용\n\"Wisdom earned at the cost of everything is the heaviest of all.\"\n(밖에서 한 번의 충돌을 막아줌 · 사용 후 20초 쿨타임)",4.5);
   }
   const ctr={x:ROOM_22.x+ROOM_22.w/2,y:ROOM_22.y+ROOM_22.h/2};
   if(Math.hypot(pl.x-ctr.x,pl.y-ctr.y)<20&&G.work.count<2){
@@ -719,9 +719,9 @@ function updateTop(){
   }
   if(inRect(pl,EXIT)){
     if(G.workDone){
-      mode="runner";toast("지부를 빠져나왔다… 달리기를 재개한다.",2.5);
+      mode="runner";toast("지부를 빠져나왔다..다시 굴러야 한다.",2.5);
     }else{
-      toast("탈출 허가 없음 — Nu M.a의 작업(2회, 통찰 포함)이 필요하다",2.2);
+      toast("탈출 허가 없음 — 환상체의 작업이 필요하다",2.2);
       G.tv.px=230;G.tv.py=350;
     }
   }
@@ -774,7 +774,7 @@ function drawTop(){
   ctx.font="bold 15px sans-serif";ctx.fillStyle="#9aa4b8";
   ctx.fillText("L사 K-07 지부 (탑뷰)",14,24);
   ctx.font="12px sans-serif";ctx.fillStyle="#667";
-  ctx.fillText("보라=정보팀 / 녹색=안전팀 / 청색=복지팀 / 주황=지휘팀 / 붉음=폐허",14,42);
+  ctx.fillText("보라색=정보팀 / 녹색=안전팀 / 청색=복지팀 / 주황=지휘팀 / 붉음=폐허",14,42);
   for(const r of ROOMS){
     ctx.globalAlpha=0.16;ctx.fillStyle=r.c;
     ctx.fillRect(r.x,r.y,r.w,r.h);
@@ -821,7 +821,7 @@ function openWork(){
 function closeWorkUI(){$("panel").classList.add("hidden");}
 function updWorkState(){
   $("wstate").innerHTML="작업 선택 "+G.work.count+" / 2"+
-    (G.work.insight?" · ✔ 통찰 완료":" · 통찰 필요!");
+    (G.work.insight?" · ✔ 통찰 완료":" · 재배열 필요!");
 }
 function doWork(type){
   if(G.work.busy||G.work.count>=2)return;
@@ -852,7 +852,7 @@ function doWork(type){
       G.work.busy=false;
       return;
     }
-    toast(type+" 작업 완료 ("+G.work.count+"/2)"+(G.work.insight?" · 통찰 기록됨":" · 통찰 1회 더 필요"),2.2);
+    toast(type+" 작업 완료 ("+G.work.count+"/2)"+(G.work.insight?" · 관찰 및 입자 재배열-통찰 기록됨":" · 통찰 1회 더 필요"),2.2);
     updWorkState();
     G.work.busy=false;
   },1450);
