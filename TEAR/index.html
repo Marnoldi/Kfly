@@ -924,7 +924,7 @@ function updateStudio(){
   }
   const pl=G.st;
   paintPickup();
-  if(pl.x>SDOOR.x-10&&pl.x<SDOOR.x+SDOOR.w+10&&pl.y>SDOOR.y-6){
+  if(pl.px>SDOOR.x-10&&pl.px<SDOOR.x+SDOOR.w+10&&pl.py>SDOOR.y-6){
     mode="top";
     G.tv.px=90;G.tv.py=200;
     G.stillT=0;
