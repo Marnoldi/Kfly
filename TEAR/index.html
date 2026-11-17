@@ -149,7 +149,7 @@ addEventListener("keydown",e=>{
   if(k==="x"||k==="v"){togglePause();return;}
   if(paused)return;
   if(mode==="runner"&&(k===" "||k==="c")){e.preventDefault();doJump();}
-  if(mode==="top")keys[k]=true;
+  if(mode==="top"||mode==="studio")keys[k]=true;
 });
 addEventListener("keyup",e=>{
   pressed.delete(e.key.toLowerCase());
@@ -188,7 +188,7 @@ addEventListener("touchstart",e=>{
   if(paused){togglePause();return;}
   touchStart={x:t.clientX,y:t.clientY,t:performance.now(),jumped:false};
   if(mode==="runner"){touchStart.jumped=true;doJump();}
-  if(mode==="top"){joyDrag={ox:t.clientX,oy:t.clientY};showJoy(t.clientX,t.clientY,0,0);}
+  if(mode==="top"||mode==="studio"){joyDrag={ox:t.clientX,oy:t.clientY};showJoy(t.clientX,t.clientY,0,0);}
 },{passive:true});
 addEventListener("touchmove",e=>{
   const t=e.changedTouches[0];
@@ -202,9 +202,16 @@ addEventListener("touchmove",e=>{
   }
 },{passive:true});
 addEventListener("touchend",e=>{
-  if(mode==="studio"&&e.changedTouches.length)tryPaintClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
   touchStart=null;joy={x:0,y:0};joyDrag=null;$("joy").classList.add("hidden");
-});
+function paintPickup(){
+  if(mode!=="studio"||G.hasPaint)return;
+  const cx=PAINT.x+30,cy=PAINT.y+45;
+  if(Math.hypot(G.st.px-cx,G.st.py-cy)<22){
+    G.hasPaint=true;
+    toast("「쪽빛 물감」 획득!\n2nd Neutrino 기프트와 같은 성능 — 렌즈 다음 순서로 충격을 한 번 흡수 (쿨타임 20초)",4);
+  }
+}
+);
 let joy={x:0,y:0};
 function showJoy(cx,cy,dx,dy){
   const j=$("joy"),k=$("joyknob"),R=56;
@@ -916,6 +923,7 @@ function updateStudio(){
     G.rot+=0.15;
   }
   const pl=G.st;
+  paintPickup();
   if(pl.x>SDOOR.x&&pl.x<SDOOR.x+SDOOR.w&&pl.y>SDOOR.y-6){
     mode="top";
     toast("다시 지부로 돌아왔다. 안전팀 가장자리이다.",2.5);
