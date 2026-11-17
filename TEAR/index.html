@@ -893,7 +893,7 @@ const PAINT={x:SX+195,y:SY+130,w:60,h:90};
 const SDOOR={x:SX+230,y:SY+398,w:60,h:20};
 function enterStudio(){
   mode="studio";G.st={px:SX+260,py:SY+390};
-  toast("…복도 끝에 없어야 할 문이 있다. 문을 지나자,\n무채색 연구실. 벽 중앙에 푸른 점묘화 하나가 걸려 있다.\n(돌아가려면 아래 입구에 다시 서면 된다 — 진행에는 영향 없음)",4.5);
+  toast("…약지 점묘파 누군가의 작업실로 왔다,벽면에는 푸른 점묘화가 걸려 있다\n(돌아가려면 아래 입구에 다시 서면 된다 — 진행에는 영향 없음)",4.5);
 }
 function tryPaintClick(cx,cy){
   if(mode!=="studio")return;
@@ -926,7 +926,9 @@ function updateStudio(){
   paintPickup();
   if(pl.x>SDOOR.x&&pl.x<SDOOR.x+SDOOR.w&&pl.y>SDOOR.y-6){
     mode="top";
-    toast("다시 지부로 돌아왔다. 안전팀 가장자리이다.",2.5);
+    G.tv.px=90;G.tv.py=200;
+    toast("다시 지부로 돌아왔다. 안전팀 한가운데이다.\n(가장자리에 다시 2초 서면 작업실로 이동 가능)",3);
+  }
   }
 }
 function drawStudio(){
