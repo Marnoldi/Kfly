@@ -111,6 +111,7 @@ function newState(){
     obs:[],spawnT:60,
     hp:10,maxhp:10,
     hasGift:false,hasLens:false,lensCD:0,invul:0,
+    hasPaint:false,paintCD:0,stillT:0,
     stageClear:false,workDone:false,
     cheat:false,cheatLock:false,
     tv:{px:285,py:350,dmgT:0,gotLens:false},
@@ -200,7 +201,8 @@ addEventListener("touchmove",e=>{
     joy={x:dx/max,y:dy/max};
   }
 },{passive:true});
-addEventListener("touchend",()=>{
+addEventListener("touchend",e=>{
+  if(mode==="studio"&&e.changedTouches.length)tryPaintClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
   touchStart=null;joy={x:0,y:0};joyDrag=null;$("joy").classList.add("hidden");
 });
 let joy={x:0,y:0};
@@ -222,7 +224,11 @@ function togglePause(){
 }
 
 /* ── 흐름 제어 ── */
-function startGame(){resetGame();$("start").classList.add("hidden");}
+function startGame(){
+  const c=G?G.cheat:false,l=G?G.cheatLock:false;
+  resetGame();G.cheat=c;G.cheatLock=l;
+  $("start").classList.add("hidden");
+}
 function resetGame(){
   G=newState();mode="runner";paused=false;
   ["over","clear","pause","panel"].forEach(i=>$(i).classList.add("hidden"));
@@ -496,6 +502,7 @@ function updateRunner(){
   if(G.py>=0){G.py=0;G.vy=0;G.onGround=true;}
   G.rot+=G.speed*0.045;
   if(G.lensCD>0)G.lensCD-=1/60;
+  if(G.paintCD>0)G.paintCD-=1/60;
   if(G.invul>0)G.invul-=1/60;
   G.spawnT-=1;
   if(G.spawnT<=0){
@@ -517,11 +524,15 @@ function updateRunner(){
   const pr={x:PX-16,y:GROUND-24+G.py,w:32,h:44};
   for(const o of G.obs){
     if(pr.x<o.x+o.w&&pr.x+pr.w>o.x&&pr.y<o.y+o.h&&pr.y+pr.h>o.y){
-      if(G.invul>0)continue;
+       if(G.invul>0)continue;
       if(G.hasLens&&G.lensCD<=0){
         G.lensCD=20;G.invul=1.2;
         G.obs=G.obs.filter(x=>x!==o);
-        toast("사고확장(O-09-27) — 렌즈가 충격을 흡수했다 (재사용 대기 20초)",2.2);
+        toast("사고확장(O-09-27 TETH) — 렌즈가 충격을 흡수했다 (재사용 대기 20초)",2.2);
+      }else if(G.hasPaint&&G.paintCD<=0){
+        G.paintCD=20;G.invul=1.2;
+        G.obs=G.obs.filter(x=>x!==o);
+        toast("쪽빛 물감 — 남색 파문이 충격을 삼켰다 (재사용 대기 20초)",2.2);
       }else{
         gameOver("사망","장애물과 충돌했다.");
       }
@@ -642,6 +653,9 @@ function drawRunner(){
     else drawDrone(o);
   }
   const cy=GROUND-16+G.py;
+  ctx.setLineDash([4,4]);ctx.strokeStyle="#57e389";ctx.lineWidth=2;
+ctx.strokeRect(24,185,26,35);ctx.setLineDash([]);
+ctx.fillStyle="#57e389";ctx.font="10px sans-serif";ctx.fillText("…?",30,182);
   drawEyeball(PX,cy,16,G.rot,true);
   if(G.onGround&&frame%6===0){
     ctx.fillStyle="rgba(160,160,170,0.3)";
@@ -699,11 +713,22 @@ function updateTop(){
     G.rot+=0.15;
   }
   const pl={x:G.tv.px,y:G.tv.py};
+  const TRIG={x:24,y:150,w:26,h:14};
+  if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01&&inRect(pl,TRIG)){
+    G.stillT+=1/60;
+    if(G.stillT>=2){G.stillT=0;enterStudio();return;}
+  }else G.stillT=0;
   G.tv.dmgT-=1/60;
   if(DEAD.some(z=>inRect(pl,z))&&G.tv.dmgT<=0){
     G.hp-=1;G.tv.dmgT=0.6;
     toast("폐허에 각막이 긁혔다… 체력 -1",1.2);
     if(G.hp<=0){gameOver("사망","폐허의 잔해 속에서 움직임을 멈췄다.");return;}
+  }
+  const TRIG={x:24,y:185,w:26,h:35};
+if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01&&inRect(pl,TRIG)){
+  G.stillT+=1/60;
+  if(G.stillT>=2){G.stillT=0;enterStudio();return;}
+}else G.stillT=0;
   }
   if(!G.hasGift&&Math.hypot(pl.x-GIFT.x,pl.y-GIFT.y)<16){
     G.hasGift=true;G.maxhp=11;G.hp=G.maxhp;
@@ -864,6 +889,87 @@ document.querySelectorAll("#panel .wk").forEach(b=>{
 });
 
 /* ── HUD ── */
+  /* ── 이스터에그: 약지 복도 속 점묘화 작업실 ── */
+const SX=145,SY=15,SW=510,SH=420;
+const PAINT={x:SX+195,y:SY+130,w:60,h:90};
+const SDOOR={x:SX+230,y:SY+398,w:60,h:20};
+function enterStudio(){
+  mode="studio";G.st={px:SX+260,py:SY+390};
+  toast("…복도 끝에 없어야 할 문이 있다. 문을 지나자,\n무채색 연구실. 벽 중앙에 푸른 점묘화 하나가 걸려 있다.\n(돌아가려면 아래 입구에 다시 서면 된다 — 진행에는 영향 없음)",4.5);
+}
+function tryPaintClick(cx,cy){
+  if(mode!=="studio")return;
+  const wx=(cx-ox)/scale,wy=(cy-oy)/scale;
+  if(wx>PAINT.x-10&&wx<PAINT.x+PAINT.w+10&&wy>PAINT.y-10&&wy<PAINT.y+PAINT.h+10){
+    if(!G.hasPaint){
+      G.hasPaint=true;
+      toast("「쪽빛 물감」 획득!\n2nd Neutrino 기프트와 같은 성능 — 렌즈 다음 순서로 충격을 한 번 흡수 (쿨타임 20초)",4);
+    }else toast("물감은 이미 손에 있다.",1.5);
+  }
+}
+cv.addEventListener("mouseup",e=>tryPaintClick(e.clientX,e.clientY));
+function updateStudio(){
+  if(!$("panel").classList.contains("hidden"))return;
+  let dx=0,dy=0;
+  if(keys["w"]||keys["arrowup"])dy-=1;
+  if(keys["s"]||keys["arrowdown"])dy+=1;
+  if(keys["a"]||keys["arrowleft"])dx-=1;
+  if(keys["d"]||keys["arrowright"])dx+=1;
+  dx+=joy.x;dy+=joy.y;
+  const m=Math.hypot(dx,dy);
+  if(m>0.15){
+    dx/=Math.max(1,m);dy/=Math.max(1,m);
+    const sp=2.4,p=G.st;
+    p.px=Math.max(SX+12,Math.min(SX+SW-12,p.px+dx*sp));
+    p.py=Math.max(SY+42,Math.min(SY+SH-14,p.py+dy*sp));
+    G.rot+=0.15;
+  }
+  const pl=G.st;
+  if(pl.x>SDOOR.x&&pl.x<SDOOR.x+SDOOR.w&&pl.y>SDOOR.y-6){
+    mode="top";
+    toast("다시 지부로 돌아왔다. 안전팀 가장자리이다.",2.5);
+  }
+}
+function drawStudio(){
+  ctx.fillStyle="#e2e2e2";ctx.fillRect(SX,SY,SW,SH);
+  ctx.fillStyle="#cfcfcf";ctx.fillRect(SX,SY+SH-70,SW,70);
+  ctx.strokeStyle="#bdbdbd";ctx.lineWidth=1.5;
+  for(let tx=SX;tx<=SX+SW;tx+=51){ctx.beginPath();ctx.moveTo(tx,SY+SH-70);ctx.lineTo(tx,SY+SH);ctx.stroke();}
+  ctx.strokeStyle="#c6c6c6";ctx.lineWidth=2;
+  for(let ty=SY;ty<=SY+SH;ty+=60){ctx.beginPath();ctx.moveTo(SX,ty);ctx.lineTo(SX+SW,ty);ctx.stroke();}
+  ctx.fillStyle="#d6d6d6";ctx.fillRect(SX+70,SY+52,SW-140,24);
+  ctx.strokeStyle="#c0c0c0";ctx.strokeRect(SX+70,SY+52,SW-140,24);
+  ctx.fillStyle="#9a9a9a";ctx.font="11px sans-serif";
+  ctx.fillText("실험 기록 · 관찰 일지 · 폐기 대기",SX+250,SY+68);
+  ctx.fillStyle="#bcbcbc";
+  ctx.fillRect(SX+40,SY+110,34,180);ctx.fillRect(SX+SW-74,SY+110,34,180);
+  ctx.fillRect(SX+140,SY+110,30,120);ctx.fillRect(SX+SW-170,SY+110,30,120);
+  ctx.strokeStyle="#a8a8a8";ctx.lineWidth=1.5;
+  ctx.strokeRect(SX+40,SY+110,34,180);ctx.strokeRect(SX+SW-74,SY+110,34,180);
+  const pulse=0.8+0.2*Math.sin(frame*0.04);
+  ctx.fillStyle="#222272";
+  ctx.globalAlpha=pulse;
+  ctx.fillRect(PAINT.x,PAINT.y,PAINT.w,PAINT.h);
+  ctx.globalAlpha=1;
+  ctx.strokeStyle="#161650";ctx.lineWidth=3;
+  ctx.strokeRect(PAINT.x,PAINT.y,PAINT.w,PAINT.h);
+  ctx.fillStyle="#101038";
+  ctx.beginPath();ctx.arc(PAINT.x+30,PAINT.y+45,9,0,7);ctx.fill();
+  ctx.fillStyle="#2a2a8a";
+  for(let d=0;d<26;d++){
+    const a=d*2.4,r=6+(d%7)*4;
+    ctx.fillRect(PAINT.x+30+Math.cos(a)*r-1.2,PAINT.y+45+Math.sin(a)*r-1.2,2.4,2.4);
+  }
+  ctx.fillStyle="#8a8a8a";ctx.font="bold 11px sans-serif";
+  ctx.fillText("점묘화 — #222272",PAINT.x-6,PAINT.y-8);
+  if(!G.hasPaint){ctx.fillStyle="#666";ctx.font="10px sans-serif";
+    ctx.fillText("(클릭 / 탭)",PAINT.x+6,PAINT.y+PAINT.h+16);}
+  ctx.fillStyle="#efefef";ctx.fillRect(SDOOR.x,SDOOR.y,SDOOR.w,SDOOR.h);
+  ctx.strokeStyle="#bbb";ctx.strokeRect(SDOOR.x,SDOOR.y,SDOOR.w,SDOOR.h);
+  ctx.fillStyle="#888";ctx.font="10px sans-serif";
+  ctx.fillText("← 입구",SDOOR.x-14,SDOOR.y-6);
+  drawEyeball(G.st.px,G.st.py,9,G.rot,true);
+}
 function drawHud(){
   let h="";
   if(mode==="runner"){
@@ -874,8 +980,7 @@ function drawHud(){
       (G.hasGift?" (기프트 +1)":"")+"<br>점수: "+Math.floor(G.score);
   }
   $("hud").innerHTML=h;
-  $("shield").innerHTML=G.hasLens?
-    ("사고확장(O-09-27): "+(G.lensCD>0?"재사용 "+G.lensCD.toFixed(1)+"s":"준비됨 🛡")):"";
+$("shield").innerHTML=(G.hasLens?("사고확장(O-09-27): "+(G.lensCD>0?"재사용 "+G.lensCD.toFixed(1)+"s":"준비됨 🛡")+"<br>"):"")+(G.hasPaint?("쪽빛 물감: "+(G.paintCD>0?"재사용 "+G.paintCD.toFixed(1)+"s":"준비됨 🎨")):"");
   $("cheatInd").innerHTML=G.cheat?"★ CHEAT: ON ★":(G.cheatLock&&mode!=="over"&&mode!=="clear"?"CHEAT: 봉인":"");
 }
 
@@ -887,10 +992,16 @@ function loop(){
   ctx.setTransform(dpr*scale,0,0,dpr*scale,ox*dpr,oy*dpr);
   if(!G)G=newState();
   if(toastT>0){toastT-=1/60;if(toastT<=0)$("toast").classList.add("hidden");}
-  if(!paused){
+   if(!paused){
     if(mode==="runner")updateRunner();
     else if(mode==="top")updateTop();
+    else if(mode==="studio")updateStudio();
   }
+  if(mode==="runner")drawRunner();
+  else if(mode==="top")drawTop();
+  else if(mode==="studio")drawStudio();
+  else{ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);}
+  
   if(mode==="runner")drawRunner();
   else if(mode==="top")drawTop();
   else{ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);}
