@@ -654,8 +654,8 @@ function drawRunner(){
   }
   const cy=GROUND-16+G.py;
   ctx.setLineDash([4,4]);ctx.strokeStyle="#57e389";ctx.lineWidth=2;
-ctx.strokeRect(24,185,26,35);ctx.setLineDash([]);
-ctx.fillStyle="#57e389";ctx.font="10px sans-serif";ctx.fillText("…?",30,182);
+  ctx.strokeRect(24,150,26,14);ctx.setLineDash([]);
+  ctx.fillStyle="#57e389";ctx.font="10px sans-serif";ctx.fillText("…?",30,147);
   drawEyeball(PX,cy,16,G.rot,true);
   if(G.onGround&&frame%6===0){
     ctx.fillStyle="rgba(160,160,170,0.3)";
@@ -723,12 +723,6 @@ function updateTop(){
     G.hp-=1;G.tv.dmgT=0.6;
     toast("폐허에 각막이 긁혔다… 체력 -1",1.2);
     if(G.hp<=0){gameOver("사망","폐허의 잔해 속에서 움직임을 멈췄다.");return;}
-  }
-  const TRIG={x:24,y:185,w:26,h:35};
-if(Math.abs(dx)<0.01&&Math.abs(dy)<0.01&&inRect(pl,TRIG)){
-  G.stillT+=1/60;
-  if(G.stillT>=2){G.stillT=0;enterStudio();return;}
-}else G.stillT=0;
   }
   if(!G.hasGift&&Math.hypot(pl.x-GIFT.x,pl.y-GIFT.y)<16){
     G.hasGift=true;G.maxhp=11;G.hp=G.maxhp;
