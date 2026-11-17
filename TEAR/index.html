@@ -1001,10 +1001,7 @@ function loop(){
   else if(mode==="top")drawTop();
   else if(mode==="studio")drawStudio();
   else{ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);}
-  
-  if(mode==="runner")drawRunner();
-  else if(mode==="top")drawTop();
-  else{ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);}
+
   drawHud();
   requestAnimationFrame(loop);
 }
